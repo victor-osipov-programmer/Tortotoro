@@ -16,7 +16,7 @@ const users = {
     getOne(id, full = false) {
         if (full) {
             return query(
-            `SELECT u.user_id, u.name, u.surname, u.patronymic, u.login, u.password, u.photo_file, g.name, s.name, u.token 
+            `SELECT u.user_id, u.name, u.surname, u.patronymic, u.login, u.password, u.photo_file, g.name as \`group\`, s.name as status, u.token 
             FROM users u
             JOIN \`groups\` g ON u.group_id = g.group_id
             JOIN user_statuses s ON u.status_id = s.status_id

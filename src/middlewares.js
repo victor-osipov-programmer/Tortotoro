@@ -9,7 +9,6 @@ function auth(roles) {
             const token = req.get('Authorization')?.split(' ')[1];
             if (!token) {
                 if (roles.length !== 0) {
-                    console.log('roles.length !== 0')
                     return next(new errors.LoginFailed());
                 }
             }
@@ -18,10 +17,8 @@ function auth(roles) {
             
             const [user] = await db.users.getOne(paylod.user_id, true);
             if (!user || token != user.token) {
-                console.log('user', user)
                 return next(new errors.LoginFailed());
             }
-            console.log(user)
 
             req.user = user;
             next()

@@ -39,7 +39,7 @@ async function logout(req, res, next) {
 }
 
 async function getUsers(req, res, next) {
-    
+    res.json(req.user)
 }
 
 module.exports = {
