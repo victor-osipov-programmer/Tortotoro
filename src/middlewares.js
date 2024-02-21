@@ -19,8 +19,14 @@ function auth(roles) {
             if (!user || token != user.token) {
                 return next(new errors.LoginFailed());
             }
+            if (!roles.includes('all') && !roles.includes(user.group)) {
+                console.log(roles)
+                console.log('!roles.includes(all) && !roles.includes(user.group)', user)
+                return next(new errors.LoginFailed());
+            }
 
             req.user = user;
+            req.roles = roles;
             next()
         } catch (err) {
             console.log('auth middleware error' , err);

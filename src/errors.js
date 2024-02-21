@@ -17,8 +17,8 @@ class LoginFailed extends GeneralError {
     }
 }
 class ForbiddenForYou extends GeneralError {
-    constructor() {
-        super(403, 'Forbidden for you');
+    constructor(message) {
+        super(403, message ?? 'Forbidden for you');
     }
 }
 class AuthenticationFailed extends GeneralError {
@@ -28,6 +28,9 @@ class AuthenticationFailed extends GeneralError {
 }
 
 function Validator(body, errors = {}) {
+    if (Object.getPrototypeOf(body) == null)
+        Object.setPrototypeOf(body, Object.prototype); // что бы hasOwnProperty точно был в обьекте
+
     const addError = (key, message) => {
         if (!errors.hasOwnProperty(key)) {
             errors[key] = [];
