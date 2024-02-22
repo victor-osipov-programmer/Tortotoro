@@ -20,6 +20,6 @@ router.get('/work-shift/:id/orders', auth(['Admin', 'Waiter']), controllers.getO
 
 router.post('/order', auth(['Waiter']), controllers.createOrder);
 router.get('/order/:id', auth(['Waiter']), controllers.getDetailsOrder);
-router.patch('/order/:id/change-status', auth(['Waiter']), controllers.updateOrderStatus);
+router.patch('/order/:id/change-status', auth(['Waiter', 'Cook']), controllers.updateOrderStatus);
 
 module.exports = router;

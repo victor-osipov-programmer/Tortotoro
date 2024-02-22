@@ -243,23 +243,30 @@ async function updateOrderStatus(req, res, next) {
     const old_status = order.status;
     const new_status = status;
 
-    const [user] = await db.orders.getUser(req.user.user_id);
-    if (!user) {
-        return next(new errors.ForbiddenForYou("Forbidden. You did not accept this order!"));
+    if (req.user.group == 'Waiter') {
+        const [user] = await db.orders.getUser(req.user.user_id);
+        if (!user) {
+            return next(new errors.ForbiddenForYou("Forbidden. You did not accept this order!"));
+        }
     }
+    
 
     const [work_shift] = await db.work_shifts.getOne(order.work_shift_id);
-    console.log(work_shift)
     if (!work_shift) {
         return next(new errors.ForbiddenForYou("work_shift not found!"));
     }
     if (!work_shift.active) {
         return next(new errors.ForbiddenForYou("You cannot change the order status of a closed shift!"));
     }
-    
+
     if (
-        old_status == 'accepted' && new_status == 'canceled' ||
-        old_status == 'ready' && new_status == 'paid-up'
+        (req.user.group == 'Waiter' &&
+        (old_status == 'accepted' && new_status == 'canceled' ||
+        old_status == 'ready' && new_status == 'paid-up'))
+        ||
+        (req.user.group == 'Cook' &&
+        (old_status == 'accepted' && new_status == 'prepare' ||
+        old_status == 'prepare' && new_status == 'ready'))
     ) {
         const [status_id] = await db.order_statuses.getIdByName(new_status);
         const new_status_id = status_id.id;
@@ -278,14 +285,24 @@ async function updateOrderStatus(req, res, next) {
 }
 
 async function getOrdersCurrentWorkShift(req, res, next) {
-    const accepted_orders = await db.orders.getOrdersByStatus('accepted');
-    const prepare_orders = await db.orders.getOrdersByStatus('prepare');
+    const accepted_orders = await db.orders.getOrdersByStatus(1); // accepted
+    const prepare_orders = await db.orders.getOrdersByStatus(5); // prepare
+
+    let data = [
+        ...accepted_orders,
+        ...prepare_orders
+    ];
+    data = data.map(order => ({
+        id: order.order_id,
+        table: order.table,
+        shift_workers: order.shift_workers,
+        create_at: order.create_at,
+        status: order.status,
+        price: order.price
+    }));
 
     res.json({
-        data: [
-            ...accepted_orders,
-            ...prepare_orders
-        ]
+        data
     })
 }
 

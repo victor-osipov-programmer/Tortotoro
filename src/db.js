@@ -103,8 +103,13 @@ const orders = {
         return query(`UPDATE orders SET order_status_id = ? WHERE order_id = ?`, [new_status, order_id]);
     },
     getOrdersByStatus(status) {
-        return query(`SELECT * FROM orders
-        WHERE order_status_id = ?`, [status]);
+        return query(`
+        SELECT o.order_id, CONCAT('Столик №', o.table_id) as \`table\`, u.name as shift_workers, o.create_at, os.name, o.price, os.name as status, o.work_shift_id
+        FROM orders o
+        JOIN work_shifts w ON w.work_shift_id = o.work_shift_id
+        JOIN users u ON u.user_id = o.user_id
+        JOIN order_statuses os ON os.order_status_id = o.order_status_id
+        WHERE o.order_status_id = ?`, [status]);
     }
 }
 
